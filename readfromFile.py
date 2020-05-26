@@ -1,6 +1,4 @@
 import requests
-from pathlib import Path
-import os
 import json
 file = open('kotlinProducts.json', 'r')
 jsondata = json.load(file)

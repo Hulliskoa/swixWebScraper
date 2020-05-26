@@ -20,12 +20,13 @@ op.add_argument('headless')
 def scrapeSwix(categoryParam, genderType):
 	driver = webdriver.Chrome(options=op)
 	driver.get("https://www.swixsport.com/no/klar/" + genderType + "/" + categoryParam + "/")
-	links = []
+	
 	containers = driver.find_elements_by_class_name('product-card__link')
-	visitedLinks = []
+	links = set()
+	visitedLinks = set()
 
 	for link in containers:
-		links.append(link.get_attribute("href"))
+		links.add(link.get_attribute("href"))
 
 
 	for link in links:
@@ -35,7 +36,8 @@ def scrapeSwix(categoryParam, genderType):
 
 	
 		driver.get(link)
-		
+	
+
 		productData = {}
 		colorImages = []
 
@@ -54,15 +56,26 @@ def scrapeSwix(categoryParam, genderType):
 		for textId in colorContainers:
 			variantId.append(textId.get_attribute("id"))
 
+		if not variantId:
+			colorImage = {}
+			colorImage["color"] = driver.find_element_by_xpath('/html/body/main/section/div[1]/div/section/section/div/section[2]/div/div/section/article[2]/ul/li[1]/span[2]').get_attribute("innerHTML").encode("utf-8")
+			colorImage["image"] = driver.find_element_by_xpath('/html/body/main/section/div[1]/div/section/div/div/div[2]/div/div[1]/div[1]/div[1]/img').get_attribute("src")
+	
+			colorImages.append(colorImage)
+			visitedLinks.add(link)
+
 		for variant in variantId:
-			driver.get(driver.find_element_by_xpath('//*[@id="html"]/head/meta[7]').get_attribute('content') + '?code=' + variant)
+			currentUrl = driver.find_element_by_xpath('//*[@id="html"]/head/meta[7]').get_attribute('content') + '?code=' + variant
+			if currentUrl in visitedLinks:
+				continue
+			driver.get(currentUrl)
 			
 			colorImage = {}
 			colorImage["color"] = driver.find_element_by_xpath('/html/body/main/section/div[1]/div/section/section/div/section[2]/div/div/section/article[2]/ul/li[1]/span[2]').get_attribute("innerHTML").encode("utf-8")
 			colorImage["image"] = driver.find_element_by_xpath('/html/body/main/section/div[1]/div/section/div/div/div[2]/div/div[1]/div[1]/div[1]/img').get_attribute("src")
 	
 			colorImages.append(colorImage)
-			visitedLinks.append('https://www.swixsport.com/no/klar/herre/jakker/blizzard-anorak-m/?code=' + variant)
+			visitedLinks.add(currentUrl)
 
 
 		sizes = driver.find_elements_by_class_name("variants__variant-size")
