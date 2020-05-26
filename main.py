@@ -55,7 +55,6 @@ def scrapeSwix(categoryParam, genderType):
 			variantId.append(textId.get_attribute("id"))
 
 		for variant in variantId:
-			print(driver.current_url)
 			driver.get(driver.find_element_by_xpath('//*[@id="html"]/head/meta[7]').get_attribute('content') + '?code=' + variant)
 			
 			colorImage = {}
@@ -76,7 +75,7 @@ def scrapeSwix(categoryParam, genderType):
 		productData["sizes"] = textSizes 
 		productData ['colorImages'] = colorImages
 		productList.append(productData)
-		kotlinFile.write(json.dumps(productList))
+		
 
 
 scrapeSwix('jakker', 'herre')
